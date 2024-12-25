@@ -1,6 +1,6 @@
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ContextTypes
-import os
 
 # Function to calculate fund table and total money
 def calculate_fund_with_total(initial_investment, levels, multiplier):
@@ -87,20 +87,23 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     multiplier = float(query.data)
     context.user_data["multiplier"] = multiplier
     await query.edit_message_text(f"You selected multiplier: {multiplier}\n\n"
-                                   "Now send input in the format:\n"
-                                   "<starting_amount> <levels>")
+                                  "Now send input in the format:\n"
+                                  "<starting_amount> <levels>")
 
 # Main function
 if __name__ == "__main__":
+    TOKEN = "7767628970:AAEBt1HnJm1SusTJ-NTXHqqGlJYi0S0rgx0"  # Replace with your actual token
+    PORT = os.getenv("PORT", 5000)  # Default to 5000 if PORT is not set
 
-    TOKEN = "7767628970:AAEBt1HnJm1SusTJ-NTXHqqGlJYi0S0rgx0"
+    # Create the Application instance with the provided token
     app = ApplicationBuilder().token(TOKEN).build()
 
+    # Add handlers
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("multiplier", choose_multiplier))
     app.add_handler(CallbackQueryHandler(button_handler))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, calculate))
 
-    print("Bot is running...")
-    app.run_polling()
+    # Start the webhook to listen on the correct port
+    app.run_webhook(listen="0.0.0.0", port=int(PORT))
